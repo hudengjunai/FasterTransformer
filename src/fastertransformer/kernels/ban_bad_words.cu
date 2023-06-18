@@ -48,10 +48,10 @@ __global__ void ban_bad_words(T*         logits,
     const int item_size  = item_end - item_start;
 
     /* The single-token case unconditionally bans the token */
-    bool should_ban = item_size == 1;
+    bool should_ban = item_size == 1 && step==0;
 
     /* Multi-token case and enough previously generated tokens to look for a match */
-    if (item_size > 1 && step >= item_size - 1) {
+    if (item_size > 1 && step == item_size - 1) {
         should_ban             = true;
         int        parent_id   = beam_idx;
         const bool gather_beam = beam_width > 1;
@@ -79,8 +79,7 @@ __global__ void ban_bad_words(T*         logits,
     if (should_ban) {
         int banned_token = base_bad_words[item_end - 1];
         if (0 < banned_token && banned_token < vocab_size_padded) {
-            logits[batch_idx * beam_width * vocab_size_padded + beam_idx * vocab_size_padded + banned_token] =
-                static_cast<T>(-INFINITY);
+            logits[batch_idx * beam_width * vocab_size_padded + beam_idx * vocab_size_padded + banned_token] += 15.0f;
         }
     }
 }
