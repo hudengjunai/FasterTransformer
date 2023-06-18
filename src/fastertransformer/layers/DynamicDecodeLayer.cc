@@ -238,7 +238,7 @@ void DynamicDecodeLayer<T>::forward(TensorMap* output_tensors, TensorMap* input_
     FT_LOG_DEBUG(__PRETTY_FUNCTION__);
     const int ite  = (int)input_tensors->at("ite").getVal<uint>();
     const int step = input_tensors->at("step").getVal<int>();
-    const int max_input_length = input_tensors.at("max_input_length").getVal<int>();
+    const int max_input_length = input_tensors->at("max_input_length").getVal<int>();
     
     FT_CHECK(input_tensors->at("logits").shape.size() == 3);
 
