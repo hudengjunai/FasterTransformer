@@ -238,13 +238,15 @@ void DynamicDecodeLayer<T>::forward(TensorMap* output_tensors, TensorMap* input_
     FT_LOG_DEBUG(__PRETTY_FUNCTION__);
     const int ite  = (int)input_tensors->at("ite").getVal<uint>();
     const int step = input_tensors->at("step").getVal<int>();
+    const int max_input_length = input_tensors.at("max_input_length").getVal<int>();
+    
     FT_CHECK(input_tensors->at("logits").shape.size() == 3);
 
     const size_t batch_size       = input_tensors->at("logits").shape[0];
     const size_t beam_width       = input_tensors->at("logits").shape[1];
     const size_t local_batch_size = (size_t)input_tensors->at("local_batch_size").getVal<int>();
 
-    if (input_tensors->isExist("bad_words_list")) {
+    if (input_tensors->isExist("bad_words_list") && (step-max_input_length==0)) {
         const auto& bad_words     = input_tensors->at("bad_words_list");
         const int*  bad_words_ptr = bad_words.getPtr<const int>();
         FT_CHECK_WITH_INFO(bad_words.shape.size() == 2 || bad_words.shape.size() == 3,
@@ -278,7 +280,7 @@ void DynamicDecodeLayer<T>::forward(TensorMap* output_tensors, TensorMap* input_
                           bad_words_len,
                           id_offset,
                           vocab_size_padded_,
-                          step,
+                          step-max_input_length,
                           stream_);
     }
 
