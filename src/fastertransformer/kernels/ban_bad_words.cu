@@ -79,7 +79,8 @@ __global__ void ban_bad_words(T*         logits,
     if (should_ban) {
         int banned_token = base_bad_words[item_end - 1];
         if (0 < banned_token && banned_token < vocab_size_padded) {
-            logits[batch_idx * beam_width * vocab_size_padded + beam_idx * vocab_size_padded + banned_token] += 15.0f;
+            const int bid = batch_idx * beam_width * vocab_size_padded + beam_idx * vocab_size_padded + banned_token;
+            logits[bid] = logits[bid] + static_cast<T>(15.0);
         }
     }
 }
